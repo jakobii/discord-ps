@@ -14,19 +14,8 @@
 
 
 .EXAMPLE
-    
-    # git clone into your working directory
-    git clone https://github.com/jakobii/discord-ps.git
-
-    # import the module into your script
-    Import-Module .\discord-ps\discord.psm1
-
-    # send a simple test message
-    send-simpleDiscordMeassage -m 'Playing with Powershell' -l 'https://discordapp.com/api/webhooks/<channel_id>/<token>'
-    
-    # Or use the Alias 'dm'. catchy huh :D! 
+     
     dm -m 'Playing with Powershell' -l 'https://discordapp.com/api/webhooks/<channel_id>/<token>'
-
 
 .NOTES
 
@@ -219,7 +208,7 @@ Set-Alias -Value get-childitem -Name Discord
 
 
 
-function send-simpleDiscordMeassage {
+function Send-SimpleDiscordMessage {
     # SIMPLE DISCORD POSTING 
     ## this is the most the simplest way to post to discord 
     param(
@@ -239,6 +228,6 @@ function send-simpleDiscordMeassage {
     # fill the object and send
     $discord.simplePost($message, $url)
 }
-Set-Alias -Value send-simpleDiscordMeassage -Name dm
-Export-ModuleMember -Function send-simpleDiscordMeassage -Alias dm
+Set-Alias -Value Send-SimpleDiscordMessage -Name dm
+Export-ModuleMember -Function Send-SimpleDiscordMessage -Alias dm
 
