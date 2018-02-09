@@ -10,22 +10,21 @@
 ![Blah](https://github.com/jakobii/discord-ps/blob/master/examples/pics/discordwebhookui.jpg?raw=true "Dicord UI")
 
 
-2) git clone this module into your working directory
+2) Git clone this module into your working directory
 ```bash
 git clone https://github.com/jakobii/discord-ps.git
 ```
 
 
-3) import the module into your script
+3) Import the module in your powershell scripts
 ```powershell
-Import-Module .\discord-ps\discord.psm1
+Import-Module '.\discord-ps\discord.psm1'
 ```
 
 
-4) Use **send-simpleDiscordMeassage** or its alias ***dm*** to send a simple message to your Discord channel. 
-*'dm' is catchy huh :D!* 
+4) Use **send-simpleDiscordMeassage** or its alias ***dm*** to send a simple message to your Discord channel.
 ```powershell
-dm -m 'Playing with Powershell' -l 'https://discordapp.com/api/webhooks/<channel_id>/<token>'
+dm -m "Yay!`n:ok_hand:" -l 'https://discordapp.com/api/webhooks/<channel_id>/<token>'
 ```
 
 

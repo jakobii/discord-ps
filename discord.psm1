@@ -240,5 +240,5 @@ function send-simpleDiscordMeassage {
     $discord.simplePost($message, $url)
 }
 Set-Alias -Value send-simpleDiscordMeassage -Name dm
-Export-ModuleMember -Function send-simpleDiscordMeassage-Alias *
+Export-ModuleMember -Function send-simpleDiscordMeassage -Alias dm
 
