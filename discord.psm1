@@ -35,6 +35,87 @@
 
 
 
+function Invoke-MultipartFormDataUpload {
+    [CmdletBinding()]
+    PARAM
+    (
+        [string][parameter(Mandatory = $true)][ValidateNotNullOrEmpty()]$InFile,
+        [string]$ContentType,
+        [Uri][parameter(Mandatory = $true)][ValidateNotNullOrEmpty()]$Uri,
+        [System.Management.Automation.PSCredential]$Credential
+    )
+    BEGIN {
+        if (-not (Test-Path $InFile)) {
+            $errorMessage = ("File {0} missing or unable to read." -f $InFile)
+            $exception = New-Object System.Exception $errorMessage
+            $errorRecord = New-Object System.Management.Automation.ErrorRecord $exception, 'MultipartFormDataUpload', ([System.Management.Automation.ErrorCategory]::InvalidArgument), $InFile
+            $PSCmdlet.ThrowTerminatingError($errorRecord)
+        }
+
+        if (-not $ContentType) {
+            Add-Type -AssemblyName System.Web
+
+            $mimeType = [System.Web.MimeMapping]::GetMimeMapping($InFile)
+            
+            if ($mimeType) {
+                $ContentType = $mimeType
+            }
+            else {
+                $ContentType = "application/octet-stream"
+            }
+        }
+    }
+    PROCESS {
+        Add-Type -AssemblyName System.Net.Http
+
+        $httpClientHandler = New-Object System.Net.Http.HttpClientHandler
+
+        if ($Credential) {
+            $networkCredential = New-Object System.Net.NetworkCredential @($Credential.UserName, $Credential.Password)
+            $httpClientHandler.Credentials = $networkCredential
+        }
+
+        $httpClient = New-Object System.Net.Http.Httpclient $httpClientHandler
+
+        $packageFileStream = New-Object System.IO.FileStream @($InFile, [System.IO.FileMode]::Open)
+
+        $contentDispositionHeaderValue = New-Object System.Net.Http.Headers.ContentDispositionHeaderValue "form-data"
+        $contentDispositionHeaderValue.Name = "fileData"
+        $contentDispositionHeaderValue.FileName = (Split-Path $InFile -leaf)
+        $streamContent = New-Object System.Net.Http.StreamContent $packageFileStream
+        $streamContent.Headers.ContentDisposition = $contentDispositionHeaderValue
+        $streamContent.Headers.ContentType = New-Object System.Net.Http.Headers.MediaTypeHeaderValue $ContentType
+        
+        $content = New-Object System.Net.Http.MultipartFormDataContent
+        $content.Add($streamContent)
+
+        try {
+            $response = $httpClient.PostAsync($Uri, $content).Result
+
+            if (!$response.IsSuccessStatusCode) {
+                $responseBody = $response.Content.ReadAsStringAsync().Result
+                $errorMessage = "Status code {0}. Reason {1}. Server reported the following message: {2}." -f $response.StatusCode, $response.ReasonPhrase, $responseBody
+
+                throw [System.Net.Http.HttpRequestException] $errorMessage
+            }
+
+            #return $response.Content.ReadAsStringAsync().Result
+        }
+        catch [Exception] {
+            $PSCmdlet.ThrowTerminatingError($_)
+        }
+        finally {
+            if ($null -ne $httpClient) {
+                $httpClient.Dispose()
+            }
+
+            if ($null -ne $response) {
+                $response.Dispose()
+            }
+        }
+    }
+    END { }
+}
 
 
 
@@ -60,6 +141,8 @@ class discord {
     # Main Properties
     #####################
     [string]$url
+    [string]$attachmentPath
+
     $name # the name of the channel
     $channel_id # ID in WEBHOOK
     $token # super long unique nums & letters at the end of the webhook url 
@@ -119,8 +202,21 @@ class discord {
         }
     }
 
+    [void]postFile($path, $url) {
+        $this.attachmentPath = $path
+        $this.url = $url
+        
+        try {
+            Invoke-MultipartFormDataUpload -InFile $this.attachmentPath -Uri $this.url
+            $this.msgWin()
+        }
+        catch {
+            #$this.msgfail($PSItem)
+        }
+    }
+
     
-    [void]simplePost($msg, $url) {
+    [void]postSimple($msg, $url) {
         # the 'easy button', 'no nonesense'  method
         
         $this.content = $msg
@@ -157,7 +253,7 @@ class discord {
     [void]msgWin() {
         function pop-s($m) {Write-Host $m -b 'green' -f 'black'}
         function pop-w($m) {Write-Host $m -f 'green'}    
-        pop-s "`n Nice! Message Sent Successfully. :D `n"
+        pop-s "`n Nice! :D `n"
     }
     [void]msgfail($err) {
         function pop-e($m) {write-host $m -f 'red'-NoNewline}
@@ -198,13 +294,14 @@ class discord {
 # FUNCTIONS 
 #######################################################################################################################
 
+
+
 function new-discordObject() {
     # Return Empty Object
     return [discord]::new()
 }
-Export-ModuleMember -Function new-discordObject -Alias *
 Set-Alias -Value get-childitem -Name Discord
-
+Export-ModuleMember -Function new-discordObject -Alias *
 
 
 
@@ -212,22 +309,39 @@ function Send-DiscordMessage {
     # SIMPLE DISCORD POSTING 
     ## this is the most the simplest way to post to discord 
     param(
-        #Message Content
-        [parameter(Mandatory = $true)]
+
+        #Message
+        [parameter(Mandatory = $true, ParameterSetName = "msg")]
         [alias("m", "msg")]
         [string]$message,
-    
+
+        #File
+        [parameter(Mandatory = $true, ParameterSetName = "file")]
+        [alias("f")]
+        [string]$file,
+
         #Webhook URL
         [parameter(Mandatory = $true)]
         [alias('l', 'webhook')]
         [string]$url
+    
     )
+
+
     #create a dicord object
     $discord = [discord]::new()
     
-    # fill the object and send
-    $discord.simplePost($message, $url)
+
+    #Send Message
+    if ($PSCmdlet.ParameterSetName -eq "msg") {
+        $discord.postSimple($message, $url)
+    }
+
+    #Send File
+    if ($PSCmdlet.ParameterSetName -eq "file") {
+        $discord.postFile($file, $url)
+    }
+
 }
 Set-Alias -Value Send-DiscordMessage -Name dm
 Export-ModuleMember -Function Send-DiscordMessage -Alias dm
-

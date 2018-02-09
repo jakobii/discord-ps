@@ -19,27 +19,23 @@ git clone https://github.com/jakobii/discord-ps.git
 Import-Module '.\discord-ps\discord.psm1'
 ```
 
-
 4) Use **Send-DiscordMessage** or its alias ***dm*** then check your Discord channel.
 ```powershell
-dm -m '*It* __works__  **!** :nerd::ok_hand:' -l "YOUR_WEBHOOK_URL_HERE"
+$url = "YOUR_WEBHOOK_URL_HERE"
+
+dm -l $url -m '*It* __works__  **!** :nerd::ok_hand:' 
+
+dm -l $url -f 'PATH\TO\FILE.JPG'
 ```
 
 
 ## Goals
 
-The ability to POST:
-- <strike>Simple Posts</strike>
-- attachements
-- rich text
-- HTML *if possible*
-- Create New Webhooks
-
-
-The ability to GET:
-- attachments
-- user status
-
+- ~~Send Message~~
+- ~~Send File~~
+- Message & File
+- Create Webhook
+- Get Webhook
 
 ## Use Case
 An IT dept decides to use *Discord* instead of *Slack* becuase it has more group management features for free. The team has many powershell scripts running everywhere and would like to be notified of any abnormal status automatically. To save themselves a little time they could use this free module.
