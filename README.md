@@ -25,7 +25,7 @@ $url = "YOUR_WEBHOOK_URL_HERE"
 
 dm -l $url -m '*It* __works__  **!** :nerd::ok_hand:' 
 
-dm -l $url -f 'PATH\TO\FILE.JPG'
+Send-DiscordMessage -l $url -f 'PATH\TO\YOUR.FILE'
 ```
 
 
