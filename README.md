@@ -32,7 +32,7 @@ Send-DiscordMessage -URL $url -Message '*It* __works__  **!** :nerd::ok_hand:'
 Send-DiscordMessage -URL $url -File 'PATH\TO\YOUR.FILE'
 
 # Shorthand
-dm -l $url -m '*It* __works__  **!** :nerd::ok_hand:' 
+dm -l $url -m ':nerd:' 
 dm -l $url -f 'PATH\TO\YOUR.FILE'
 ```
 
@@ -53,17 +53,23 @@ An IT Dept decides to use *Discord* instead of *Slack* becuase it has more group
 
 Powershell uses the backtick [ **`** ] as an [escape character](https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_special_characters). Markdown uses the backtick to create code blocks and syntax highlighting. To store a backtick as a string in powershell you need to escape it with another backtick like this [ **``** ]. So if you need to store three backticks in a string you need to write six backticks like this [ **``````** ].
 
-Past this in a powershell terminal if its confusing. It will return valid markdown syntax.
+Past this in a powershell terminal if its confusing, it will return valid markdown syntax.
 ```powershell
-$MarkdownCodeBlock = "``````powershell`nFunction Foo(`$bar){`n    return [omg]::new(`$bar)`n}`n``````"
-write-host $MarkdownCodeBlock -f 'yellow'
+$MultilineCode = "``````powershell`nFunction Foo(`$bar){`n    return [omg]::new(`$bar)`n}`n``````"
+write-host $MultilineCode -f 'y'
+
+#View it in discord
+dm -l $YourUrl -m $MultilineCode
 ```
 
 
 Backticks wont escape within single quotes.
 ```powershell
-$blah = '```'
-write-host $blah -f 'yellow'
+$SingleLineCode = '`If(!$True){$this.DoesntEscape}`'
+write-host $SingleLineCode -f 'y'
+
+#View it in discord
+dm -l $YourUrl -m $SingleLineCode
 ```
 
 
