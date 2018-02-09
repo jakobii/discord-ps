@@ -3,10 +3,10 @@
 
 
 ## Getting Started
-1) First you need to [create a webhook](https://support.discordapp.com/hc/en-us/articles/228383668-Intro-to-Webhooks) in your Discord App
+1) First you need to [create a webhook](https://support.discordapp.com/hc/en-us/articles/228383668-Intro-to-Webhooks) in Discord. You will need the url.
 
        
-![Blah](https://github.com/jakobii/discord-ps/blob/master/examples/pics/discordwebhookui.jpg?raw=true "Dicord UI")
+![WEBHOOK EXAMPLE](https://github.com/jakobii/discord-ps/blob/master/examples/pics/discordwebhookui.jpg?raw=true "WEBHOOK EXAMPLE")
 
 
 2) Git clone this module into your working directory
@@ -20,7 +20,7 @@ Import-Module '.\discord-ps\discord.psm1'
 ```
 
 
-4) Use **Send-SimpleDiscordMessage** or its alias ***dm*** to send a simple message to your Discord channel.
+4) Use **Send-SimpleDiscordMessage** or its alias ***dm*** then check your Discord channel.
 ```powershell
 dm -m "Yay!`n:ok_hand:" -l 'https://discordapp.com/api/webhooks/<channel_id>/<token>'
 ```
