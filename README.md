@@ -18,7 +18,7 @@ Import-Module .\discord-ps\discord.psm1
 ```
 
 
-4) Use 'send-simpleDiscordMeassage' or its alias 'dm' to send a simple message to your Discord channel. 
+4) Use **send-simpleDiscordMeassage** or its alias ***dm*** to send a simple message to your Discord channel. 
 *'dm' is catchy huh :D!* 
 ```powershell
 dm -m 'Playing with Powershell' -u 'https://discordapp.com/api/webhooks/<channel_id>/<token>'
@@ -42,7 +42,7 @@ The ability to GET:
 
 
 ## Use Cases
-An IT dept desides to use *Discord* instead of *Slack* becuase it has more group management features for free. The team has many powershell scripts running everywhere and would like to be notified of any abnormal status automatically. To save themselves a little time they could to free module.
+An IT dept desides to use *Discord* instead of *Slack* becuase it has more group management features for free. The team has many powershell scripts running everywhere and would like to be notified of any abnormal status automatically. To save themselves a little time they could use this free module.
 
 
 
