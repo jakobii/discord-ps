@@ -20,7 +20,7 @@ Import-Module '.\discord-ps\discord.psm1'
 ```
 
 
-4) Use **send-simpleDiscordMeassage** or its alias ***dm*** to send a simple message to your Discord channel.
+4) Use **Send-SimpleDiscordMessage** or its alias ***dm*** to send a simple message to your Discord channel.
 ```powershell
 dm -m "Yay!`n:ok_hand:" -l 'https://discordapp.com/api/webhooks/<channel_id>/<token>'
 ```
