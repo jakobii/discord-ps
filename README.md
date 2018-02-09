@@ -3,7 +3,7 @@
 
 
 ## Getting Started
-1) First you need to [create a webhook](https://support.discordapp.com/hc/en-us/articles/228383668-Intro-to-Webhooks) in Discord. You will need the url.
+1) First you need to [create a webhook](https://support.discordapp.com/hc/en-us/articles/228383668-Intro-to-Webhooks) in Discord. Take note of the *WEBHOOK URL*.
 
        
 ![WEBHOOK EXAMPLE](https://github.com/jakobii/discord-ps/blob/master/examples/pics/discordwebhookui.jpg?raw=true "WEBHOOK EXAMPLE")
@@ -22,7 +22,7 @@ Import-Module '.\discord-ps\discord.psm1'
 
 4) Use **Send-SimpleDiscordMessage** or its alias ***dm*** then check your Discord channel.
 ```powershell
-dm -m "Yay!`n:ok_hand:" -l 'https://discordapp.com/api/webhooks/<channel_id>/<token>'
+dm -m "Yay!`n:ok_hand:" -l "YOUR_WEBHOOK_URL_HERE"
 ```
 
 
