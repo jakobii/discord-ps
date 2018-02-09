@@ -25,7 +25,7 @@ Import-Module .\discord-ps\discord.psm1
 4) Use **send-simpleDiscordMeassage** or its alias ***dm*** to send a simple message to your Discord channel. 
 *'dm' is catchy huh :D!* 
 ```powershell
-dm -m 'Playing with Powershell' -u 'https://discordapp.com/api/webhooks/<channel_id>/<token>'
+dm -m 'Playing with Powershell' -l 'https://discordapp.com/api/webhooks/<channel_id>/<token>'
 ```
 
 

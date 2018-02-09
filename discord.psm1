@@ -22,10 +22,10 @@
     Import-Module .\discord-ps\discord.psm1
 
     # send a simple test message
-    send-simpleDiscordMeassage -m 'Playing with Powershell' -u 'https://discordapp.com/api/webhooks/<channel_id>/<token>'
+    send-simpleDiscordMeassage -m 'Playing with Powershell' -l 'https://discordapp.com/api/webhooks/<channel_id>/<token>'
     
     # Or use the Alias 'dm'. catchy huh :D! 
-    dm -m 'Playing with Powershell' -u 'https://discordapp.com/api/webhooks/<channel_id>/<token>'
+    dm -m 'Playing with Powershell' -l 'https://discordapp.com/api/webhooks/<channel_id>/<token>'
 
 
 .NOTES
@@ -230,7 +230,7 @@ function send-simpleDiscordMeassage {
     
         #Webhook URL
         [parameter(Mandatory = $true)]
-        [alias("u")]
+        [alias('l', 'webhook')]
         [string]$url
     )
     #create a dicord object
