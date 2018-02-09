@@ -19,112 +19,29 @@
 
 .NOTES
 
-    [VersGuid] 87471c2c-01b3-4c5e-b4da-1baac1aace99
+    [VersGuid] ad21d43f-8c30-49d8-ac83-79434f201f4a
 
-    [tested] Thursday, February 8, 2018 2:57:33 PM
+    [tested] Friday, February 9, 2018 2:51:19 PM
 
     [tester] Jacob Ochoa
 
     [Status] Stable
 
+
 #>
 
 
 
-
-
-
-
-function Invoke-MultipartFormDataUpload {
-    [CmdletBinding()]
-    PARAM
-    (
-        [string][parameter(Mandatory = $true)][ValidateNotNullOrEmpty()]$InFile,
-        [string]$ContentType,
-        [Uri][parameter(Mandatory = $true)][ValidateNotNullOrEmpty()]$Uri,
-        [System.Management.Automation.PSCredential]$Credential
-    )
-    BEGIN {
-        if (-not (Test-Path $InFile)) {
-            $errorMessage = ("File {0} missing or unable to read." -f $InFile)
-            $exception = New-Object System.Exception $errorMessage
-            $errorRecord = New-Object System.Management.Automation.ErrorRecord $exception, 'MultipartFormDataUpload', ([System.Management.Automation.ErrorCategory]::InvalidArgument), $InFile
-            $PSCmdlet.ThrowTerminatingError($errorRecord)
-        }
-
-        if (-not $ContentType) {
-            Add-Type -AssemblyName System.Web
-
-            $mimeType = [System.Web.MimeMapping]::GetMimeMapping($InFile)
-            
-            if ($mimeType) {
-                $ContentType = $mimeType
-            }
-            else {
-                $ContentType = "application/octet-stream"
-            }
-        }
-    }
-    PROCESS {
-        Add-Type -AssemblyName System.Net.Http
-
-        $httpClientHandler = New-Object System.Net.Http.HttpClientHandler
-
-        if ($Credential) {
-            $networkCredential = New-Object System.Net.NetworkCredential @($Credential.UserName, $Credential.Password)
-            $httpClientHandler.Credentials = $networkCredential
-        }
-
-        $httpClient = New-Object System.Net.Http.Httpclient $httpClientHandler
-
-        $packageFileStream = New-Object System.IO.FileStream @($InFile, [System.IO.FileMode]::Open)
-
-        $contentDispositionHeaderValue = New-Object System.Net.Http.Headers.ContentDispositionHeaderValue "form-data"
-        $contentDispositionHeaderValue.Name = "fileData"
-        $contentDispositionHeaderValue.FileName = (Split-Path $InFile -leaf)
-        $streamContent = New-Object System.Net.Http.StreamContent $packageFileStream
-        $streamContent.Headers.ContentDisposition = $contentDispositionHeaderValue
-        $streamContent.Headers.ContentType = New-Object System.Net.Http.Headers.MediaTypeHeaderValue $ContentType
-        
-        $content = New-Object System.Net.Http.MultipartFormDataContent
-        $content.Add($streamContent)
-
-        try {
-            $response = $httpClient.PostAsync($Uri, $content).Result
-
-            if (!$response.IsSuccessStatusCode) {
-                $responseBody = $response.Content.ReadAsStringAsync().Result
-                $errorMessage = "Status code {0}. Reason {1}. Server reported the following message: {2}." -f $response.StatusCode, $response.ReasonPhrase, $responseBody
-
-                throw [System.Net.Http.HttpRequestException] $errorMessage
-            }
-
-            #return $response.Content.ReadAsStringAsync().Result
-        }
-        catch [Exception] {
-            $PSCmdlet.ThrowTerminatingError($_)
-        }
-        finally {
-            if ($null -ne $httpClient) {
-                $httpClient.Dispose()
-            }
-
-            if ($null -ne $response) {
-                $response.Dispose()
-            }
-        }
-    }
-    END { }
+function import-types{
+    # classes and DLL are werid in Powershell
+    # This feels super hacky but it works I guess...
+    Add-Type -AssemblyName System.Web
+    Add-Type -AssemblyName System.Net.Http
 }
-
-
-
 
 
 # CLASSES 
 #######################################################################################################################
-
-
 
 class discord {
     
@@ -136,7 +53,7 @@ class discord {
     hidden [string]$regxUrl = '(https://discordapp.com/api/webhooks/)(\d+)[/](\w+)'
     hidden [string]$baseUrl = 'https://discordapp.com/api/webhooks/'
     hidden [string]$webHookDocUrl = 'https://discordapp.com/developers/docs/resources/webhook'
-
+    hidden $response # Discord server response
 
     # Main Properties
     #####################
@@ -195,7 +112,7 @@ class discord {
         }
         try {
             Invoke-RestMethod @restParam
-            $this.msgWin()
+            #$this.msgWin()
         }
         catch {
             $this.msgfail($PSItem)
@@ -203,16 +120,36 @@ class discord {
     }
 
     [void]postFile($path, $url) {
+        
+        # store
+        # [fix] add path & url validation
         $this.attachmentPath = $path
         $this.url = $url
-        
+
+        # build
+        $mType = [System.Web.MimeMapping]::GetMimeMapping($path)
+        $httpClientHandler = New-Object System.Net.Http.HttpClientHandler
+        $httpClient = New-Object System.Net.Http.Httpclient $httpClientHandler
+        $packageFileStream = New-Object System.IO.FileStream @($path, [System.IO.FileMode]::Open)
+        $HeaderValue = New-Object System.Net.Http.Headers.ContentDispositionHeaderValue "form-data"
+        $HeaderValue.Name = "fileData"
+        $HeaderValue.FileName = (Split-Path $path -leaf)
+        $streamContent = New-Object System.Net.Http.StreamContent $packageFileStream
+        $streamContent.Headers.ContentDisposition = $HeaderValue
+        $streamContent.Headers.ContentType = New-Object System.Net.Http.Headers.MediaTypeHeaderValue $mType
+        $fileContent = New-Object System.Net.Http.MultipartFormDataContent
+        $fileContent.Add($streamContent)
+
+        #send
         try {
-            Invoke-MultipartFormDataUpload -InFile $this.attachmentPath -Uri $this.url
-            $this.msgWin()
+            $this.response = $httpClient.PostAsync($url, $fileContent).Result
         }
-        catch {
-            #$this.msgfail($PSItem)
+        catch {}
+        finally {
+            $httpClient.Dispose()
+            $this.response.Dispose()
         }
+
     }
 
     
@@ -230,7 +167,7 @@ class discord {
             }
             try {
                 Invoke-RestMethod @restParam
-                $this.msgWin()
+                #$this.msgWin()
             }
             catch {
                 $this.msgfail($PSItem)
@@ -250,10 +187,11 @@ class discord {
         
         return $match
     }
-    [void]msgWin() {
+    [void]msgWin($msgtype) {
+        #[fix] enable on verbose param only. 
         function pop-s($m) {Write-Host $m -b 'green' -f 'black'}
         function pop-w($m) {Write-Host $m -f 'green'}    
-        pop-s "`n Nice! :D `n"
+        pop-s "`n Discord Success! `n"
     }
     [void]msgfail($err) {
         function pop-e($m) {write-host $m -f 'red'-NoNewline}
@@ -274,7 +212,7 @@ class discord {
     }
 
 
-}#END DISCORD OBJECT
+}#END DISCORD CLASS
 
 
 
@@ -288,12 +226,8 @@ class discord {
 
 
 
-
-
-
-# FUNCTIONS 
+# DELIVERABLE FUNCTIONS 
 #######################################################################################################################
-
 
 
 function new-discordObject() {
@@ -304,44 +238,46 @@ Set-Alias -Value get-childitem -Name Discord
 Export-ModuleMember -Function new-discordObject -Alias *
 
 
-
 function Send-DiscordMessage {
-    # SIMPLE DISCORD POSTING 
-    ## this is the most the simplest way to post to discord 
+
+    # CMDLET for Discord Webhooks
+    # The Face of the [discord] class 
+    ###################################
+
     param(
 
-        #Message
+        # Message
         [parameter(Mandatory = $true, ParameterSetName = "msg")]
         [alias("m", "msg")]
-        [string]$message,
+        [string]$Message,
 
-        #File
+        # File
         [parameter(Mandatory = $true, ParameterSetName = "file")]
         [alias("f")]
         [string]$file,
 
-        #Webhook URL
+        # Webhook URL
         [parameter(Mandatory = $true)]
-        [alias('l', 'webhook')]
-        [string]$url
+        [alias('l', 'Webhook')]
+        [string]$URL
     
     )
 
-
-    #create a dicord object
+    # create a dicord object
     $discord = [discord]::new()
     
 
-    #Send Message
+    # Send Message
     if ($PSCmdlet.ParameterSetName -eq "msg") {
-        $discord.postSimple($message, $url)
+        $discord.postSimple($Message, $URL)
     }
 
-    #Send File
+    # Send File
     if ($PSCmdlet.ParameterSetName -eq "file") {
-        $discord.postFile($file, $url)
+        $discord.postFile($File, $URL)
     }
 
 }
+
 Set-Alias -Value Send-DiscordMessage -Name dm
 Export-ModuleMember -Function Send-DiscordMessage -Alias dm

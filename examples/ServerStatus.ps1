@@ -3,7 +3,7 @@
 
 
 
-# [Warning!] this is not ready yet. please dont use until this gets to Master
+# [Warning!] this is not ready yet. sorry...
 ############################################################################################
 
 
@@ -32,4 +32,3 @@ function test-Forever([string]$server, [string]$webHook) {
 }
 
 test-Forever -Server 8.8.8.8 -webhook $url
-
