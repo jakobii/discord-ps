@@ -208,7 +208,7 @@ Set-Alias -Value get-childitem -Name Discord
 
 
 
-function Send-SimpleDiscordMessage {
+function Send-DiscordMessage {
     # SIMPLE DISCORD POSTING 
     ## this is the most the simplest way to post to discord 
     param(
@@ -228,6 +228,6 @@ function Send-SimpleDiscordMessage {
     # fill the object and send
     $discord.simplePost($message, $url)
 }
-Set-Alias -Value Send-SimpleDiscordMessage -Name dm
-Export-ModuleMember -Function Send-SimpleDiscordMessage -Alias dm
+Set-Alias -Value Send-DiscordMessage -Name dm
+Export-ModuleMember -Function Send-DiscordMessage -Alias dm
 

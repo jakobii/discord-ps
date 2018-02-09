@@ -20,9 +20,9 @@ Import-Module '.\discord-ps\discord.psm1'
 ```
 
 
-4) Use **Send-SimpleDiscordMessage** or its alias ***dm*** then check your Discord channel.
+4) Use **Send-DiscordMessage** or its alias ***dm*** then check your Discord channel.
 ```powershell
-dm -m "Yay!`n:ok_hand:" -l "YOUR_WEBHOOK_URL_HERE"
+dm -m '*It* __works__  **!** :nerd::ok_hand:' -l "YOUR_WEBHOOK_URL_HERE"
 ```
 
 
@@ -45,5 +45,8 @@ The ability to GET:
 An IT dept decides to use *Discord* instead of *Slack* becuase it has more group management features for free. The team has many powershell scripts running everywhere and would like to be notified of any abnormal status automatically. To save themselves a little time they could use this free module.
 
 
-## links
-[Discord Docs](https://discordapp.com/developers/docs/intro)
+## Links
+
+- [Discord Docs](https://discordapp.com/developers/docs/intro)
+
+- [Discord Markdown](https://support.discordapp.com/hc/en-us/articles/210298617-Markdown-Text-101-Chat-Formatting-Bold-Italic-Underline-)
